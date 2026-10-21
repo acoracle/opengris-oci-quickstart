@@ -27,6 +27,7 @@ ALL {{resource.type = 'computecontainerinstance', resource.compartment.id = '{co
 Create an IAM policy at tenancy root with these statements:
 Allow dynamic-group scaler-scheduler to manage compute-container-family in compartment id {compartment}
 Allow dynamic-group scaler-scheduler to use virtual-network-family in compartment id {network}
+Allow dynamic-group scaler-scheduler to manage repos in compartment id {registry}
 Allow dynamic-group scaler-container-pullers to read repos in compartment id {registry}
 
 Subnet/VNIC compartment assumed: {network}

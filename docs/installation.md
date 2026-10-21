@@ -43,15 +43,7 @@ bash scripts/install-environment.sh
 source ~/scaler-py312/bin/activate
 ```
 
-The installer installs uv if needed, obtains Python **3.12.15**, and creates `~/scaler-py312`. It installs `opengris-scaler[oci]==2.9.0` and `numpy==2.2.6`; Scaler's OCI extra supplies the compatible SDK. It does not depend on Oracle Linux's system Python or a C++ compiler when a compatible wheel is available. Additional packages such as ParGraph can be added when your application uses them; the included Monte Carlo tasks do not need them.
-
-On a new or replacement VM, clone this repository and run the same installer. No export from the previous VM is needed. The repository already contains:
-
-- `.python-version`: the Python version to install.
-- `requirements-linux-amd64.lock`: the pinned package versions used by both the installer and worker image.
-- `requirements.txt`: the direct application dependencies.
-
-The dependency lock targets Linux x86_64. To use another environment directory, set `SCALER_ENV_DIRECTORY`. To override the Python patch release, set `SCALER_PYTHON_VERSION`; keep host and worker releases aligned. If the environment already exists, its Python must be 3.12.
+The installer installs uv and creates the OpenGRIS Scaler environment.
 
 ## 3. Give the scheduler VM permission through a dynamic group
 
@@ -90,12 +82,13 @@ Create an IAM policy at tenancy root, substituting actual compartment OCIDs:
 ```text
 Allow dynamic-group scaler-scheduler to manage compute-container-family in compartment id WORKER_COMPARTMENT_OCID
 Allow dynamic-group scaler-scheduler to use virtual-network-family in compartment id NETWORK_COMPARTMENT_OCID
+Allow dynamic-group scaler-scheduler to manage repos in compartment id REGISTRY_COMPARTMENT_OCID
 Allow dynamic-group scaler-container-pullers to read repos in compartment id REGISTRY_COMPARTMENT_OCID
 ```
 
 In an identity-domain tenancy, qualify dynamic-group names with the domain when required, for example `'Default'/'scaler-scheduler'`. Use the exact names from your tenancy. If the VM's VNIC is in a different compartment from the worker subnet, also grant the scheduler `read vnics` in that VNIC compartment so the configuration generator can read it.
 
-The first statement covers creating, inspecting, stopping, deleting, and retrieving logs from container instances. The second allows their VNIC/subnet operations and lets the generator inspect the VM's VNIC. The third lets the **container instances themselves** pull private images. Podman login on the scheduler does not grant image-pull permission to the workers.
+The first statement covers creating, inspecting, stopping, deleting, and retrieving logs from container instances. The second allows their VNIC/subnet operations and lets the generator inspect the VM's VNIC. The third lets the **scheduler VM create repositories and push images** in the registry compartment. The fourth lets the **container instances themselves** pull those private images. These are separate permissions: publishing access on the VM does not grant worker image-pull access.
 
 The networking policy follows Oracle's documented launch example and grants access across the named network compartment. The container-puller group includes all container instances in its compartment; use a dedicated demonstration compartment if that is too broad for an existing shared compartment. See [Container Instances IAM policies](https://docs.oracle.com/en-us/iaas/Content/container-instances/permissions/policy-reference.htm).
 
@@ -107,40 +100,44 @@ The calculation code is included under `app/montecarlo/`, and the five pricing i
 
 These files come from upstream commit `c0068ccba6cd004944afbd2f1bc3ba54291cfecf`. The runner and worker image use these local copies. See [UPSTREAM.md](../UPSTREAM.md) for provenance.
 
-## 5. Build and push your private worker image
+## 5. Create the private repository, build, and push from the VM
 
-An OCI administrator should create a **private OCIR repository** named `opengris` in the registry compartment used in step 3. Pre-create it in the intended compartment; automatic creation during push can place a repository in the tenancy root.
-
-The human account used for Podman needs repository write permission. For an administrator-managed publisher group, a policy example is:
-
-```text
-Allow group IMAGE_PUBLISHERS to manage repos in compartment id REGISTRY_COMPARTMENT_OCID
-```
-
-Qualify the group with its identity domain where required. This publishing identity is separate from the scheduler VM's instance principal. Obtain the Object Storage namespace from the tenancy details in the Console, or run `oci os ns get --query data --raw-output` in OCI Cloud Shell with suitable permissions. This namespace is part of OCIR image names; this demo does not create a bucket.
-
-Set values for your tenancy and region. Frankfurt is shown as an example; the namespace below must be yours:
+Run this on the scheduler VM in the activated environment:
 
 ```bash
-export OCIR_HOST='fra.ocir.io'
-export OCIR_NAMESPACE='YOUR_TENANCY_NAMESPACE'
-export IMAGE="$OCIR_HOST/$OCIR_NAMESPACE/opengris:montecarlo-v1"
-export OCIR_USER='YOUR_IDENTITY_DOMAIN/YOUR_USERNAME'
-
-podman login "$OCIR_HOST" --username "$OCIR_NAMESPACE/$OCIR_USER"
+python scripts/build-and-push.py --repository opengris --tag montecarlo-v1
 ```
 
-At the password prompt, enter an **OCI auth token**, not your Console password. A federated username might be `OracleIdentityCloudService/username@example.com`; login syntax is `<namespace>/<identity-domain>/<username>`. Do not put the auth token into this repository or into a command argument.
+The script uses the VM's **instance principal** to:
 
-Run the build **from this repository's root**:
+1. Discover the VM's region and compartment through metadata.
+2. Create a private OCIR repository, or reuse an existing private repository with the same name in the selected compartment.
+3. Obtain the tenancy namespace from the repository response and construct the image URI.
+4. Build the Linux amd64 worker image from this repository's `container/Dockerfile`.
+5. Request a short-lived OCIR bearer token, authenticate Podman, and push the image.
+6. Save the image tag, pushed digest reference, and repository OCID to `results/worker-image.json`.
+
+No user API key, federated username, permanent auth token, OCI CLI, or external credential helper is needed. The short-lived Podman credentials are stored in a temporary directory and removed when publishing finishes or fails. The `manage repos` permission from step 3 covers repository creation and publishing; the worker pull policy remains required.
+
+By default, the repository is created in the VM's compartment. If your registry compartment differs, use the same OCID used in the policy:
 
 ```bash
-podman build --platform linux/amd64 \
-  -f container/Dockerfile -t "$IMAGE" .
-podman push "$IMAGE"
+python scripts/build-and-push.py \
+  --registry-compartment-id REGISTRY_COMPARTMENT_OCID \
+  --repository opengris --tag montecarlo-v1
 ```
 
-The Dockerfile builds its own OCI Raw worker launcher, installs Python and dependencies during the build, and copies the upstream Monte Carlo package into the image. Startup checks the worker-manager requirements and reuses installed dependencies where compatible. No dependency on a personal prebuilt `opengris:latest` image is required. It still needs network access at startup. For stronger repeatability, use a pushed image digest in the generated configuration.
+The registry hostname is derived from the VM region; `--registry-host fra.ocir.io` can select its regional alias explicitly. This script targets commercial OCI regions. It refuses an existing public repository and never changes repository visibility. Repository names are tenancy-wide within a region: if the name belongs to another compartment, specify that compartment or choose a different name. Reusing a tag updates it in a mutable repository; use a new tag if the repository is immutable.
+
+Load the pushed digest for the next step:
+
+```bash
+IMAGE="$(python -c 'import json; print(json.load(open("results/worker-image.json"))["image_digest_ref"])')"
+```
+
+The Dockerfile installs Python and dependencies during the build and copies the included Monte Carlo code. Workers reuse compatible installed dependencies at startup. The script always supplies the repository root as the build context, even if invoked from another directory. Build failures can leave the newly created private repository available for a retry; failed pushes do not write new success metadata.
+
+See Oracle's [instance-principal OCIR authentication guide](https://docs.oracle.com/en/learn/cred-helper/index.html) and [registry bearer-token explanation](https://www.ateam-oracle.com/authentication-mechanisms-for-oci-container-registry-ocir).
 
 ## 6. Generate the VM-specific configuration
 
