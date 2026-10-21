@@ -56,17 +56,13 @@ source ~/scaler-py312/bin/activate
 
 The installer installs uv if needed, obtains Python **3.12.15**, and creates `~/scaler-py312`. It installs `opengris-scaler[oci]==2.9.0` and `numpy==2.2.6`; Scaler's OCI extra supplies the compatible SDK. It does not depend on Oracle Linux's system Python or a C++ compiler when a compatible wheel is available. Additional packages such as ParGraph can be added when your application uses them; the included Monte Carlo tasks do not need them.
 
-Run the same installer on a replacement VM. To use another directory, set `SCALER_ENV_DIRECTORY`. To override the Python patch release, set `SCALER_PYTHON_VERSION`; keep host and worker releases aligned. If the environment already exists, its Python must be 3.12. The installer and worker image use `requirements-linux-amd64.lock`, an exact package inventory exported from the tested Python 3.12.15 Linux worker image. `requirements.txt` records the direct dependencies. The inventory targets Linux x86_64 and does not include OS packages or preserve downloaded wheels; regenerate and test it when upgrading.
+On a new or replacement VM, clone this repository and run the same installer. No export from the previous VM is needed. The repository already contains:
 
-For an exact inventory of an existing environment:
+- `.python-version`: the Python version to install.
+- `requirements-linux-amd64.lock`: the pinned package versions used by both the installer and worker image.
+- `requirements.txt`: the direct application dependencies.
 
-```bash
-export PATH="$HOME/.local/bin:$PATH"
-uv pip freeze --python ~/scaler-py312/bin/python > requirements-exported.txt
-python --version > python-version-exported.txt
-```
-
-On the replacement VM, after creating the Python environment, install that inventory with `uv pip install --python ~/scaler-py312/bin/python -r requirements-exported.txt`. Transfer local/editable dependency sources separately. Do not commit credentials or virtual-environment directories.
+The dependency lock targets Linux x86_64. To use another environment directory, set `SCALER_ENV_DIRECTORY`. To override the Python patch release, set `SCALER_PYTHON_VERSION`; keep host and worker releases aligned. If the environment already exists, its Python must be 3.12.
 
 ## 3. Give the scheduler VM permission through a dynamic group
 
