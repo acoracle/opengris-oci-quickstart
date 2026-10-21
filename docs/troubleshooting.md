@@ -1,4 +1,4 @@
-# Troubleshooting and cleanup
+# Troubleshooting
 
 [Back to README](../README.md)
 
@@ -16,6 +16,8 @@ Run shell commands from the repository root.
 
 On the VM use `sudo ss -lntp` to verify listeners. In OCI Console inspect **Developer Services → Container Instances**, the container's logs, and work-request errors. Logs can become unavailable after deletion; capture them while the resource exists. OCI debug HTTP output can include signed headers: avoid posting it unredacted.
 
-Stop Scaler with Ctrl-C and verify in OCI that its worker container instances were deleted. If the process was killed or the VM failed, manually remove remaining `scaler-worker-*` instances belonging to this demo. Only remove your own demo resources. Delete the VM, private image/repository, IAM rules, and network rules when no longer needed.
+## Cleanup
+
+Follow the [cleanup guide](cleanup.md) to stop Scaler, preview matching worker instances, delete leftovers with `scripts/cleanup.py`, and remove the remaining demo resources.
 
 Return to [Running examples](running-examples.md).
