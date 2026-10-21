@@ -123,36 +123,10 @@ python scripts/build-and-push.py \
 
 The registry hostname is derived from the VM region; `--registry-host fra.ocir.io` can select its regional alias explicitly. This script targets commercial OCI regions. It refuses an existing public repository and never changes repository visibility. Repository names are tenancy-wide within a region: if the name belongs to another compartment, specify that compartment or choose a different name. Reusing a tag updates it in a mutable repository; use a new tag if the repository is immutable.
 
-Load the pushed digest for the next step:
-
-```bash
-IMAGE="$(python -c 'import json; print(json.load(open("results/worker-image.json"))["image_digest_ref"])')"
-```
+The next guide loads the pushed digest from `results/worker-image.json` when generating the Scaler configuration.
 
 The Dockerfile installs Python and dependencies during the build and copies the included Monte Carlo code. Workers reuse compatible installed dependencies at startup. The script always supplies the repository root as the build context, even if invoked from another directory. Build failures can leave the newly created private repository available for a retry; failed pushes do not write new success metadata.
 
 See Oracle's [instance-principal OCIR authentication guide](https://docs.oracle.com/en/learn/cred-helper/index.html) and [registry bearer-token explanation](https://www.ateam-oracle.com/authentication-mechanisms-for-oci-container-registry-ocir).
-
-## 5. Generate the VM-specific configuration
-
-From the activated environment:
-
-```bash
-python scripts/generate-scaler-config.py \
-  --container-image "$IMAGE" \
-  --max-task-concurrency 16 \
-  --output config-montecarlo.toml
-cat config-montecarlo.toml
-```
-
-The generator defaults to **`auth_type = "instance_principal"`**. No `~/.oci/config` or user API signing key is required. It reads IMDSv2, then uses `GetVnic` to discover the subnet. It normalizes the region and keeps the tenancy-prefixed availability-domain name. Existing output is backed up before replacement. To retain user API-key authentication instead:
-
-```bash
-python scripts/generate-scaler-config.py --container-image "$IMAGE" \
-  --auth-type config_file --profile DEFAULT
-```
-
-The default size is 4 OCPUs and 30 GB per container instance. `--max-task-concurrency 16` permits up to four such instances. It is a ceiling, not a request to prestart four instances. Container instances incur charges while provisioned.
-
 
 Next: [Start Scaler and run the examples](running-examples.md).
