@@ -1,4 +1,4 @@
-# OpenGRIS Scaler on OCI
+# Demoing OpenGRIS on OCI
 
 [OpenGRIS](https://github.com/finos/opengris) is a FINOS initiative for sharing distributed compute resources across applications. **Citi was an originating contributor**, including the initial Scaler implementation; see the [FINOS contribution record](https://github.com/finos/community/issues/326).
 
