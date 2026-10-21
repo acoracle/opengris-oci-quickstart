@@ -69,7 +69,7 @@ bash opengris/run-grid.sh --parallelism 4
 
 ## Notebook examples
 
-The [notebook gallery](notebooks/README.md) includes the four official OpenGRIS examples and a small worker connection check.
+The [notebook gallery](notebooks/README.md#notebook-gallery) includes the four official OpenGRIS examples, a table of their Parfun/ParGraph usage and OCI worker configuration, and a small worker connection check.
 Run Jupyter on the scheduler VM and use your workstation browser through an SSH tunnel; the installer includes the required notebook packages.
 
 ```bash

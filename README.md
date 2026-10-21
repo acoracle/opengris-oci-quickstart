@@ -18,7 +18,7 @@ The Monte Carlo code and examples are included in this repository. The command-l
 
 1. [Installation and OCI configuration](docs/installation.md) — create the VM, configure networking and IAM dynamic groups, install the environment, create the OCIR repository and publish the worker image from the VM.
 2. [Start Scaler](docs/running-examples.md) — generate the VM-specific configuration, verify worker execution, and learn how tasks are distributed.
-3. [Examples](examples/README.md) — short descriptions and commands for pi, pricing calculations, and the scenario grid.
+3. [Examples](examples/README.md) — descriptions and commands for pi, pricing calculations, and the scenario grid. For notebooks, follow [Jupyter and the SSH tunnel](examples/notebooks/README.md#open-an-ssh-tunnel-from-your-workstation).
 4. [Troubleshooting](docs/troubleshooting.md) and [cleanup](docs/cleanup.md) — diagnose problems and remove demo resources.
 
 ## Learn more

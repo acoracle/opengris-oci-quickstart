@@ -4,13 +4,22 @@
 
 These notebooks are included locally from the [official Scaler gallery](https://finos.github.io/opengris-scaler/tutorials/examples.html), adapted to use the existing OCI scheduler. No download is needed after cloning this repository. Upstream license and notices are included in this directory.
 
-| Notebook | What it demonstrates |
-|---|---|
-| [00_Check_OCI.ipynb](00_Check_OCI.ipynb) | A small connection test that imports the notebook dependencies on workers and returns their package versions. Start here. |
-| [AlphaResearch.ipynb](AlphaResearch.ipynb) | Parfun distributes independent signal calculations, followed by portfolio analysis. |
-| [VolSurface.ipynb](VolSurface.ipynb) | Parfun distributes trade pricing using a calibrated volatility surface. |
-| [SwapCVA.ipynb](SwapCVA.ipynb) | ParGraph expresses calculation dependencies, while Parfun distributes simulation work. |
-| [XVA.ipynb](XVA.ipynb) | ParGraph schedules a multi-stage portfolio risk calculation on the OCI workers. |
+## Notebook gallery
+
+The columns follow the [upstream example gallery](https://finos.github.io/opengris-scaler/tutorials/examples.html), through **Num Workers**, adapted to this OCI deployment.
+
+| Examples | Parfun | Pargraph | Client | Workers | Num Workers |
+|---|---|---|---|---|---|
+| [Multi-Signal Alpha Research](AlphaResearch.ipynb) | Yes | No | OCI_RAW | OCI Container Instances | Up to 16* |
+| [Vol Surface Calibration & PDE Exotic Pricing](VolSurface.ipynb) | Yes | No | OCI_RAW | OCI Container Instances | Up to 16* |
+| [Swap Portfolio CVA](SwapCVA.ipynb) | Yes | Yes | OCI_RAW | OCI Container Instances | Up to 16* |
+| [Portfolio-Level XVA Risk](XVA.ipynb) | No | Yes | OCI_RAW | OCI Container Instances | Up to 16* |
+
+Here **Client** identifies the deployment backend, following the requested gallery format: the notebook uses Scaler's Python client, and `oci_raw` manages the remote workers. **Num Workers** counts Scaler worker processes, not container instances.
+
+*The guide's `max_task_concurrency = 16` configuration permits up to 16 concurrent worker task slots, normally four 4-OCPU container instances with four workers each. This is a configured ceiling, not a measured benchmark worker count or a fixed pool; Scaler provisions capacity as needed. If you change the configuration, update this limit accordingly. The upstream AWS/native benchmark worker counts and timings are not OCI measurements.
+
+Start with [00_Check_OCI.ipynb](00_Check_OCI.ipynb), a small connection test that imports the notebook dependencies on workers and returns their package versions.
 
 ## Install or upgrade the demo
 
@@ -36,18 +45,49 @@ Generate the configuration from the new image digest using the [configuration in
 Keep Scaler running in one terminal. In another terminal on the same VM:
 
 ```bash
+cd ~/opengris-oci-quickstart
 bash scripts/start-notebooks.sh
 ```
 
-This starts JupyterLab on `127.0.0.1:8888`, serving this notebook directory. On your workstation, open an SSH tunnel:
+This starts JupyterLab on `127.0.0.1:8888`, serving this notebook directory. Leave it running and copy the login URL containing its token.
+
+## Open an SSH tunnel from your workstation
+
+Run the following on your **workstation**, in a new terminal, while Jupyter runs on the VM:
 
 ```bash
-ssh -N -L 8888:127.0.0.1:8888 opc@VM_SSH_HOST
+ssh -i ~/.ssh/YOUR_PRIVATE_KEY -N -o ExitOnForwardFailure=yes \
+  -L 127.0.0.1:8888:127.0.0.1:8888 opc@VM_SSH_HOST
 ```
 
-Replace `VM_SSH_HOST` with your SSH destination. With OCI Bastion, add the same `-L` option to your working Bastion SSH command and retain its proxy settings.
+Replace `~/.ssh/YOUR_PRIVATE_KEY` with your SSH private key path and `VM_SSH_HOST` with the hostname or IP you normally use to SSH into the VM. If your SSH agent or SSH configuration already supplies the key, omit `-i ~/.ssh/YOUR_PRIVATE_KEY`. Use the VM's private IP only if your workstation can reach it through VPN or another private connection.
+
+The command forwards workstation port 8888 to port 8888 on the VM. `-N` opens only the tunnel, so a successful connection normally stays open without displaying a shell prompt. Keep this terminal open while using Jupyter.
+
+### If you connect through OCI Bastion
+
+Use your working **Managed SSH session** command, retaining its identity file, target VM, and `ProxyCommand`. Add these options to the outer SSH command that connects to `opc` on the VM:
+
+```bash
+-N -o ExitOnForwardFailure=yes -L 127.0.0.1:8888:127.0.0.1:8888
+```
+
+Keep the Bastion session active; recreate an expired session and update the session ID in your SSH command. These instructions assume a Managed SSH session to the VM, rather than a Bastion port-forwarding session.
+
+### Open Jupyter and check the connection
 
 Open the Jupyter login URL printed on the VM in your workstation browser, using `http://127.0.0.1:8888` and its token. The browser is on your workstation, but the Python kernel runs on the VM. No public ingress rule for port 8888 is needed. Select **OpenGRIS Scaler (Python 3.12)** and run `00_Check_OCI.ipynb` first.
+
+If workstation port 8888 is already in use, forward a different local port:
+
+```bash
+ssh -i ~/.ssh/YOUR_PRIVATE_KEY -N -o ExitOnForwardFailure=yes \
+  -L 127.0.0.1:8889:127.0.0.1:8888 opc@VM_SSH_HOST
+```
+
+Then use `http://127.0.0.1:8889` with the same Jupyter token. The VM still uses port 8888.
+
+If the browser cannot connect, verify Jupyter's listener on the VM with `ss -lnt | grep ':8888'`. Add `-v` to the SSH command on your workstation to diagnose SSH connection failures. Stop the tunnel with Ctrl-C when finished.
 
 ## Run a gallery notebook
 

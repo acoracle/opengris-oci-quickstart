@@ -59,6 +59,23 @@ Each task runs on a Scaler worker, waits two seconds, and returns:
 If no workers are available, the pending tasks prompt the OCI Raw manager to provision capacity. The first run can take longer while a container instance is created, its image is pulled, and workers start. Existing workers can execute the test immediately.
 
 
+## Run the notebooks through an SSH tunnel
+
+Keep Scaler running. On the VM, from the repository root:
+
+```bash
+bash scripts/start-notebooks.sh
+```
+
+On your workstation, in a separate terminal:
+
+```bash
+ssh -i ~/.ssh/YOUR_PRIVATE_KEY -N -o ExitOnForwardFailure=yes \
+  -L 127.0.0.1:8888:127.0.0.1:8888 opc@VM_SSH_HOST
+```
+
+Replace the key path and `VM_SSH_HOST` with those used to SSH into your VM. Leave this terminal open, then open the Jupyter URL printed on the VM in your workstation browser, using `http://127.0.0.1:8888` and its token. See the [notebook guide](../examples/notebooks/README.md#open-an-ssh-tunnel-from-your-workstation) for OCI Bastion, port conflicts, and connection checks.
+
 ## Choose an example
 
 The [examples catalogue](../examples/README.md) describes each calculation in two lines and shows how to run pi, one pricing input, or the scenario grid. The pi script is in [`examples/pi.py`](../examples/pi.py).
