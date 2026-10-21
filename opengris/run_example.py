@@ -2,7 +2,7 @@
 """Run the repository's existing JSON examples using OpenGRIS Scaler 2.9.0.
 
 Place this file in opengris/ inside the quickstart checkout. The client imports
-_upstream/montecarlo/app/ directly; remote workers need that same directory in their PYTHONPATH.
+app/ directly; remote workers need that same directory in their PYTHONPATH.
 Results persist on the client filesystem. This is a synchronous replacement for
 the numerical execution path, not the Helm/IAM/Object Storage lifecycle.
 """
@@ -19,7 +19,7 @@ from pathlib import Path
 from time import perf_counter
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE_ROOT = ROOT / "_upstream" / "montecarlo"
+SOURCE_ROOT = ROOT
 sys.path.insert(0, str(SOURCE_ROOT / "app"))
 
 

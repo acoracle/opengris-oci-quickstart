@@ -112,13 +112,11 @@ The networking policy follows Oracle's documented launch example and grants acce
 
 Allow time for IAM propagation. [Rule changes can take about an hour](https://docs.oracle.com/en-us/iaas/Content/Identity/dynamicgroups/Updating_Dynamic_Groups.htm) to be effective. When replacing the VM, update the `instance.id` matching rule.
 
-## 4. Fetch the pinned Monte Carlo examples
+## 4. Use the included Monte Carlo examples
 
-```bash
-bash scripts/fetch-examples.sh
-```
+The calculation code is included under `app/montecarlo/`, and the five pricing inputs and nine-scenario market-risk grid are under `examples/`. They are available immediately after cloning this repository; no additional checkout or fetch step is required.
 
-This checks out upstream commit `c0068ccba6cd004944afbd2f1bc3ba54291cfecf` under `_upstream/montecarlo`. The original Python package lives in `app/montecarlo`; it is not installed by guessing a PyPI package name. Source is fetched from its author rather than redistributed here. Keep upstream notices and review its licensing before redistributing a derived image.
+These files come from upstream commit `c0068ccba6cd004944afbd2f1bc3ba54291cfecf`. The runner and worker image use these local copies. See [UPSTREAM.md](UPSTREAM.md) for provenance.
 
 ## 5. Build and push your private worker image
 
@@ -214,7 +212,7 @@ Run a particular input:
 
 ```bash
 bash opengris/run-example.sh --scheduler tcp://127.0.0.1:8516 \
-  --spec _upstream/montecarlo/examples/asian-call.json --parallelism 4
+  --spec examples/asian-call.json --parallelism 4
 ```
 
 The adapter reuses upstream `run_partition()` and `aggregate()`. One simulation becomes several Scaler tasks; futures return partial statistics to the client for aggregation. All five examples and the nine market-risk scenarios are supported. `--parallelism` is the number of logical tasks per simulation, not the number of container instances. Preserve the same partition count and seed when comparing results with the Kubernetes demo.
@@ -233,7 +231,7 @@ To exercise scaling, create longer work and more tasks:
 python - <<'PY'
 import json
 from pathlib import Path
-spec = json.loads(Path('_upstream/montecarlo/examples/sample-simulation.json').read_text())
+spec = json.loads(Path('examples/sample-simulation.json').read_text())
 spec.update(run_id='scaling-demo', simulations=100_000_000)
 Path('results').mkdir(exist_ok=True)
 Path('results/scaling-demo.json').write_text(json.dumps(spec, indent=2))
@@ -248,7 +246,7 @@ This may create additional billable instances up to your configured limit. Inspe
 
 | Symptom | Check |
 |---|---|
-| `COPY ... no such file` during build | Run `fetch-examples.sh`, then build from the repository root. |
+| `COPY ... no such file` during build | Build from the repository root, where `app/montecarlo/` is included. |
 | OCI 400 on creation | Inspect the full AD name, subnet OCID, and shape settings in the config. |
 | OCI 404 / `NotAuthorizedOrNotFound` | Dynamic-group membership, policy scope, region, resource OCIDs, IAM propagation. |
 | Image cannot be pulled | Exact image URI/tag; private-repository compartment and container-puller policy; subnet egress. |
@@ -272,7 +270,7 @@ Developer checks (activate the environment first):
 
 ```bash
 uv pip install --python "$VIRTUAL_ENV/bin/python" pytest==8.3.5
-PYTHONPATH=_upstream/montecarlo/app python -m pytest -q tests _upstream/montecarlo/tests
+PYTHONPATH=app python -m pytest -q tests
 ```
 
 The automated tests use mock OCI responses; they do not create IAM policies or cloud resources. A live OCI deployment is still required to validate the network, tenancy policies, image pull, and service quotas together.
@@ -284,7 +282,7 @@ gh auth login
 gh repo create acoracle/opengris-oci-quickstart --private --source=. --remote=origin --push
 ```
 
-Choose public visibility separately if you intend to share it publicly. Generated configs, logs, upstream checkouts, results, and key files are ignored. Review the staged content before pushing.
+Choose public visibility separately if you intend to share it publicly. Generated configs, logs, results, and key files are ignored. Review the staged content before pushing.
 
 ## Sources and attribution
 
@@ -292,6 +290,6 @@ Choose public visibility separately if you intend to share it publicly. Generate
 - [OCI Container Instances policies and private image pulls](https://docs.oracle.com/en-us/iaas/Content/container-instances/permissions/policy-reference.htm).
 - [OCI instance metadata](https://docs.oracle.com/en-us/iaas/Content/Compute/Tasks/gettingmetadata.htm) and [VNIC model](https://docs.oracle.com/en-us/iaas/tools/python/latest/api/core/models/oci.core.models.Vnic.html).
 - [OCI repository publishing policies](https://docs.oracle.com/en-us/iaas/Content/Registry/Concepts/registrypolicyrepoaccess.htm).
-- [Monte Carlo source](https://github.com/dezma/oci-monte-carlo-quickstart/tree/c0068ccba6cd004944afbd2f1bc3ba54291cfecf), fetched separately and used without modifying its numerical formulas.
+- [Monte Carlo source](https://github.com/dezma/oci-monte-carlo-quickstart/tree/c0068ccba6cd004944afbd2f1bc3ba54291cfecf), included locally without modifying its numerical formulas.
 
-This is an independent demo integration, not an official FINOS or Oracle deployment distribution. No license for the new repository has been selected; choose an appropriate license before broader redistribution. Dependencies and fetched source retain their own terms.
+This is an independent demo integration, not an official FINOS or Oracle deployment distribution. No license for the new repository has been selected; choose an appropriate license before broader redistribution. Dependencies and included third-party source retain their own terms.

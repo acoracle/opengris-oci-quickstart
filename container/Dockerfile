@@ -9,7 +9,7 @@ RUN uv python install "${PYTHON_VERSION}" \
     && uv venv --python "${PYTHON_VERSION}" /opt/opengris-scaler
 COPY requirements-linux-amd64.lock /opt/worker-requirements.txt
 RUN uv pip install --python /opt/opengris-scaler/bin/python -r /opt/worker-requirements.txt
-COPY _upstream/montecarlo/app/montecarlo /opt/mcqs/app/montecarlo
+COPY app/montecarlo /opt/mcqs/app/montecarlo
 COPY container/entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 ENV PATH="/opt/opengris-scaler/bin:${PATH}" PYTHONPATH=/opt/mcqs/app
