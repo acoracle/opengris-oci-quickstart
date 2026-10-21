@@ -2,7 +2,36 @@
 
 [Back to README](../README.md) · [Start Scaler](../docs/running-examples.md)
 
+## How parallel execution works
+
+| Term | Meaning in this demo |
+|---|---|
+| Task | One function call and its inputs, such as simulating a batch of paths. Tasks wait until their inputs and a worker are available. |
+| Worker | A Scaler process that executes one task at a time, then takes another. Several workers can run inside one container. |
+| Container instance | OCI compute capacity hosting the worker container. With this demo's 4-OCPU configuration, each instance starts four workers. |
+
+For example, 15 independent tasks can run on four workers in one container instance: four execute at a time while the others wait. More tasks do not automatically mean more containers. Scaler's scaling policy decides when to request capacity; `max_task_concurrency = 16` is a ceiling, not a request to start 16 workers immediately.
+
+The pricing example's `--parallelism` and the pi example's `--tasks` control how work is split. Parfun splits function inputs; ParGraph exposes calculations that can run once their dependencies are ready. See [parallelization and scaling](../docs/running-examples.md#parallelization-tasks-workers-and-container-instances), including why the XVA notebook may use just one instance.
+
 Run commands from the repository root with your Scaler environment activated and scheduler running.
+
+### Worked example: pi tasks and batches
+
+```bash
+python examples/pi.py --tasks 8 --chunks-per-task 2 --chunk-size 100000
+```
+
+| Parameter | Meaning |
+|---|---|
+| `--tasks 8` | Submit eight independent tasks. They run as workers become available. |
+| `--chunks-per-task 2` | Each task processes two batches sequentially. |
+| `--chunk-size 100000` | Each batch generates 100,000 random points. |
+
+Each task generates `2 × 100,000 = 200,000` points. Across all tasks, the calculation generates **`8 × 2 × 100,000 = 1,600,000` points**. Each task returns its count of points inside the quarter-circle; the client sums the counts and calculates pi.
+
+The two batches do not mean two workers. With two workers, two tasks execute at a time; with four workers, four execute at a time; with eight workers, all eight can execute simultaneously. In this demo, one 4-OCPU container instance starts four workers, so it can process the eight tasks in two groups of four, with workers taking the next waiting task as they finish. Actual timing depends on task duration and worker availability; these small tasks may finish before any additional capacity is provisioned.
+
 
 ## [Estimate pi](pi.py)
 

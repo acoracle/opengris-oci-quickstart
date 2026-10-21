@@ -86,9 +86,35 @@ Outputs are under `results/opengris/<invocation-id>/`, with a manifest, reusable
 
 **Statistical limitation:** the upstream reducer treats antithetic payoffs as independent when calculating standard error. This adapter preserves that calculation to reproduce upstream output; its confidence intervals are not a corrected uncertainty estimate.
 
+## Parallelization: tasks, workers, and container instances
+
+The notebook or command-line script is the **client**: it submits tasks and collects results. The **scheduler**, on the VM, assigns tasks to workers. The **OCI Raw worker manager** creates or removes container instances when the scheduler requests a change in capacity.
+
+A **task** is a function call with its inputs. A **worker** is a Scaler process that executes one task at a time in this demo. A worker can execute many tasks over its lifetime. A **container instance** provides CPU, memory, and networking for the container that starts those worker processes. These are different counts: 128 tasks do not require 128 workers or 128 container instances.
+
+With the guide's configuration:
+
+| Setting or count | Meaning |
+|---|---|
+| `instance_ocpus = 4.0` | OCI Raw starts four workers per container instance. |
+| `instance_memory_gb = 30.0` | Memory available to the container instance, shared by its workers and their calculations. |
+| `max_task_concurrency = 16` | Permits capacity for up to 16 concurrent tasks, corresponding to four instances at this size. It does not prestart them. |
+| `--parallelism 128` | Splits one pricing simulation into 128 tasks; workers execute these as capacity becomes available. |
+| Pi `--tasks 128` | Submits 128 independent hit-counting tasks; the client sums their results. |
+
+A NumPy batch or a Monte Carlo path is not automatically a separate Scaler task. The application chooses the task boundaries. Increasing paths inside an existing task increases its work without increasing the number of tasks available to schedule.
+
+**Parfun** partitions function inputs into tasks and combines the results. **ParGraph** manages a graph of dependent calculations and submits calculations when their inputs become available. The XVA notebook uses ParGraph; a large total graph does not mean all its nodes can run simultaneously.
+
 ### Why only one container instance?
 
-A 4-OCPU instance runs four workers. Small examples can finish on that instance. The Scaler 2.9.0 vanilla policy grows capacity gradually using task-to-worker thresholds, and OCI Raw provisions instances sequentially. `max_task_concurrency` permits capacity; it does not prewarm a fixed pool.
+In the Scaler 2.9.0 `vanilla` policy used here, pending work triggers an initial capacity request when no workers exist. Once workers are connected, expansion requires the scheduler's task count divided by its worker count to exceed **10**. It requests additional worker capacity incrementally; OCI Raw converts the requested concurrency into whole container instances and provisions them sequentially. The policy does not estimate each task's remaining execution time.
+
+For example, the XVA notebook initially exposes 15 calibration tasks. One instance supplies four workers, giving `15 / 4 = 3.75` tasks per worker. That is below the expansion threshold, so the first instance can process the calculations in batches even when they take several minutes. Later graph nodes become runnable as their dependencies finish. Choosing `FULL_CONFIG` makes tasks heavier but does not create more graph nodes, so it does not itself force more instances.
+
+The scheduler log `tasks=15, workers=0, current=0 -> desired=1` records the initial requested worker capacity. OCI Raw rounds that request up to one instance containing four workers; its separate `Desired unit count` log counts instances. Worker `connected` messages confirm registration. `balancing task` messages describe task redistribution, not completed calculations.
+
+To use more instances, the application must expose sufficient runnable work for the policy, or the deployment must use a scaling policy suited to a smaller number of long tasks. Raising `max_task_concurrency` alone changes only the ceiling. These thresholds describe this pinned version and default policy.
 
 To exercise scaling, create longer work and more tasks:
 
