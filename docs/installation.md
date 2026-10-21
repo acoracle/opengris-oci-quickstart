@@ -23,7 +23,8 @@ Allow corresponding worker egress to the scheduler. Use stateful rules, or confi
 For this demo, stop and disable `firewalld` on the scheduler VM:
 
 ```bash
-sudo systemctl disable --now firewalld
+sudo systemctl stop firewalld
+sudo systemctl disable firewalld
 ```
 
 This stops firewalld immediately and disables it at boot. OCI security lists and NSGs still apply; keep the network rules above restricted to the worker subnet and approved SSH sources.
