@@ -9,6 +9,6 @@
 - [OCI repository publishing policies](https://docs.oracle.com/en-us/iaas/Content/Registry/Concepts/registrypolicyrepoaccess.htm).
 - [Monte Carlo source](https://github.com/dezma/oci-monte-carlo-quickstart/tree/c0068ccba6cd004944afbd2f1bc3ba54291cfecf), included locally without modifying its numerical formulas.
 
-This is an independent demo integration, not an official FINOS or Oracle deployment distribution. No license for the new repository has been selected; choose an appropriate license before broader redistribution. Dependencies and included third-party source retain their own terms.
+This is an independent demo integration, not an official FINOS or Oracle deployment distribution. Original code and documentation in this repository are licensed under the [Apache License 2.0](../LICENSE). Bundled OpenGRIS notebooks and diagrams are also Apache-2.0-licensed, with upstream notices preserved in [NOTICE](../NOTICE). The copied Monte Carlo material has no verified license grant and is excluded from this declaration pending confirmation from its copyright holders. Installed dependencies retain their own licenses.
 
 See [Monte Carlo source provenance](../UPSTREAM.md).

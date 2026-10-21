@@ -29,3 +29,7 @@ The Monte Carlo code and examples are included in this repository. The command-l
 - [Source provenance](UPSTREAM.md)
 
 This is a single-VM demo with local result files. The included Monte Carlo reducer preserves upstream's known antithetic confidence-interval limitation; see the [example guide](docs/running-examples.md).
+
+## License
+
+This project's original code and documentation are licensed under the [Apache License 2.0](LICENSE). Bundled OpenGRIS notebooks and diagrams also use Apache 2.0; their original notices are preserved in [NOTICE](NOTICE). Licensing of the copied Monte Carlo material remains unverified and is excluded from this declaration pending confirmation. See [source provenance](UPSTREAM.md) for details. Installed dependencies retain their own licenses.
