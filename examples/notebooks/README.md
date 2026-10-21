@@ -91,10 +91,19 @@ If the browser cannot connect, verify Jupyter's listener on the VM with `ss -lnt
 
 ## Run a gallery notebook
 
-Open one notebook and run its cells in order. Each gallery notebook contains a native implementation, which runs on the scheduler VM, and a parallel implementation, which submits to the existing OCI workers. XVA has been changed from creating a local cluster to using that same remote scheduler. Outputs and execution counts were cleared from all bundled copies.
+Open one notebook and run its cells in order. Each gallery notebook contains a native implementation and a parallel implementation:
+
+| Notebook section | Where the calculations execute |
+|---|---|
+| **Native Python Implementation** | On the Jupyter kernel's host CPUs, without submitting tasks to Scaler. In this setup, that host is the scheduler VM. |
+| **ParGraph / Parfun Implementation** | On Scaler workers in OCI Container Instances. The Jupyter kernel submits work and collects results. |
+
+Your workstation browser displays the notebook; it does not execute its Python calculations. The execution location is determined by the selected Jupyter kernel, which this guide runs on the VM.
+
+For example, in XVA, `run_sequential(MEDIUM_CONFIG)` computes directly on the VM, while `run_graph(MEDIUM_CONFIG)` submits the calculation through Scaler. Running all cells performs both versions: the native calculation can take a long time before the distributed calculation starts, and the native section does not itself provision Scaler workers.
 
 The original benchmark sizes are retained: sequential comparison cells can run for a long time, and parallel cells can provision billable workers up to your configured capacity limit. Reduce the workload parameters before a first experiment; there is no fixed runtime guarantee. Use the small connection notebook to validate installation before starting these larger calculations.
 
 Notebook defaults are `tcp://127.0.0.1:8516` for the scheduler and `tcp://127.0.0.1:8517` for Scaler's object-storage service. Those loopback addresses are correct because the kernel runs on the VM. Container workers continue to use the VM's private IP from the Scaler configuration. Parfun is configured with `use_worker_client=True`, so nested tasks in SwapCVA use their worker's scheduler connection rather than the notebook's loopback address. If needed, set `SCALER_SCHEDULER_ADDRESS` and `SCALER_OBJECT_STORAGE_ADDRESS` before starting Jupyter to override the notebook defaults.
 
-Use `JUPYTER_PORT=8889 bash scripts/start-notebooks.sh` to change the local notebook port, and adjust the SSH tunnel accordingly. Stop Jupyter with Ctrl-C when finished; it does not stop Scaler or delete worker instances. Follow the [cleanup guide](../../docs/cleanup.md) when the demo is over.
+Stop Jupyter with Ctrl-C when finished; it does not stop Scaler or delete worker instances. Follow the [cleanup guide](../../docs/cleanup.md) when the demo is over.
