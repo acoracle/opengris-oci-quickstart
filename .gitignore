@@ -13,3 +13,4 @@ config*.toml
 .env
 .env.*
 auth.json
+.ipynb_checkpoints/

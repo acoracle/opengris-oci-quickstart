@@ -12,7 +12,7 @@ Its Python libraries cover three complementary roles:
 
 This quickstart uses **Scaler directly on OCI**. A Compute VM runs the scheduler and worker manager; the `oci_raw` manager creates OCI Container Instances to execute tasks over the private network. It uses instance-principal authentication and private OCIR images. No Kubernetes cluster is required.
 
-The Monte Carlo code and examples are included in this repository. ParGraph and Parfun are optional and are not needed for these examples.
+The Monte Carlo code and examples are included in this repository. The command-line examples use Scaler directly; the included notebook gallery also demonstrates ParGraph and Parfun.
 
 ## Get started
 
@@ -26,6 +26,6 @@ The Monte Carlo code and examples are included in this repository. ParGraph and 
 - [OpenGRIS, Citi, and the Python packages](docs/opengris.md)
 - [Validation and publishing](docs/development.md)
 - [Sources and attribution](docs/sources.md)
-- [Monte Carlo source provenance](UPSTREAM.md)
+- [Source provenance](UPSTREAM.md)
 
 This is a single-VM demo with local result files. The included Monte Carlo reducer preserves upstream's known antithetic confidence-interval limitation; see the [example guide](docs/running-examples.md).

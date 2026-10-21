@@ -16,4 +16,7 @@ if [[ ! -x "$ENV_DIRECTORY/bin/python" ]]; then
 fi
 "$ENV_DIRECTORY/bin/python" -c 'import sys; assert sys.version_info[:2] == (3, 12), "Use a Python 3.12 environment"'
 uv pip install --python "$ENV_DIRECTORY/bin/python" -r "$ROOT/requirements-linux-amd64.lock"
+"$ENV_DIRECTORY/bin/python" -m ipykernel install --user --name opengris-scaler \
+  --display-name "OpenGRIS Scaler (Python 3.12)"
 printf '\nEnvironment ready. Activate it with:\n  source %q/bin/activate\n' "$ENV_DIRECTORY"
+printf 'Launch the included notebooks with:\n  bash %q/scripts/start-notebooks.sh\n' "$ROOT"

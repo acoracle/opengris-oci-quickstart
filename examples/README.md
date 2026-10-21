@@ -67,4 +67,15 @@ Each scenario is split into independent Scaler tasks and produces its own aggreg
 bash opengris/run-grid.sh --parallelism 4
 ```
 
+## Notebook examples
+
+The [notebook gallery](notebooks/README.md) includes the four official OpenGRIS examples and a small worker connection check.
+Run Jupyter on the scheduler VM and use your workstation browser through an SSH tunnel; the installer includes the required notebook packages.
+
+```bash
+bash scripts/start-notebooks.sh
+```
+
+For an existing installation, rerun the installer, rebuild the worker image, and regenerate the Scaler configuration first; follow the [notebook setup guide](notebooks/README.md).
+
 Commands default to the scheduler on `tcp://127.0.0.1:8516`. Add `--scheduler tcp://VM_PRIVATE_IP:8516` when submitting from another reachable host. See [execution details and scaling](../docs/running-examples.md) for partitioning, outputs, and the pricing confidence-interval limitation. Run `python examples/pi.py --help` for workload options; its default workload is 51.2 billion samples.

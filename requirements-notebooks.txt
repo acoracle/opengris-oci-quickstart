@@ -1,0 +1,8 @@
+# Runtime dependencies from the Scaler notebook gallery.
+scipy
+pandas
+opengris-parfun
+pargraph
+QuantLib
+tqdm
+yfinance==0.2.56

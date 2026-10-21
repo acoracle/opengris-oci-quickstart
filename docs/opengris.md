@@ -28,7 +28,7 @@ For example, a Monte Carlo application can submit each independent partition dir
 
 ### How this repository runs OpenGRIS on OCI
 
-This quickstart uses **Scaler directly**, with its `oci_raw` worker manager. ParGraph and Parfun are described here to explain the wider project; the included examples do not require or install them.
+This quickstart uses **Scaler directly**, with its `oci_raw` worker manager. The command-line examples use Scaler directly; the bundled notebook examples also use ParGraph and Parfun. Their dependencies are installed on the VM and in worker images.
 
 On Oracle Cloud Infrastructure (OCI), Scaler's **`oci_raw` worker manager** can create and delete **OCI Container Instances** as workload demand changes. One Compute VM runs the scheduler, the worker manager, and Scaler's object-storage service. Worker processes run inside the container instances and connect back to that VM over the private network. This setup needs no Kubernetes cluster. Scaler's object-storage service is its own process on TCP 8517; it is distinct from OCI Object Storage buckets.
 

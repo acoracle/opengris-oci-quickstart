@@ -11,6 +11,7 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m pip install -r requirements-linux-amd64.lock pytest==8.3.5
+      - run: python -m ipykernel install --user --name opengris-scaler --display-name "OpenGRIS Scaler (Python 3.12)"
       - run: PYTHONPATH=app python -m pytest -q tests
       - run: bash -n scripts/*.sh opengris/*.sh container/entrypoint.sh
       - run: python opengris/run_example.py --local-workers 2 --all-examples --parallelism 4

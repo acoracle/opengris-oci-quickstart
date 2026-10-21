@@ -43,7 +43,7 @@ bash scripts/install-environment.sh
 source ~/scaler-py312/bin/activate
 ```
 
-The installer installs uv and creates the OpenGRIS Scaler environment.
+The installer installs uv and creates the OpenGRIS Scaler environment, including JupyterLab and the dependencies for the bundled notebooks. The worker image installs the same calculation dependencies from `requirements-worker-linux-amd64.lock`; the VM uses `requirements-linux-amd64.lock`, which also includes Jupyter.
 
 ## 3. Give the scheduler VM permission through a dynamic group
 

@@ -140,7 +140,7 @@ def render(info, args):
         f"container_image = {quote(args.container_image)}",
         'python_version = "3.12.15"',
         'requirements_txt = """',
-        "opengris-scaler[oci]==2.9.0", "numpy==2.2.6", '"""',
+        (Path(__file__).resolve().parents[1] / "requirements-worker-linux-amd64.lock").read_text().strip(), '"""',
         f"instance_ocpus = {args.instance_ocpus}",
         f"instance_memory_gb = {args.instance_memory_gb}",
     ]
