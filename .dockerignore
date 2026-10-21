@@ -1,0 +1,13 @@
+.git
+.venv
+results
+config*.toml
+*.log
+**/__pycache__
+**/.git
+**/.oci
+**/*.pem
+**/*.key
+.env
+.env.*
+auth.json

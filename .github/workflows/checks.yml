@@ -1,0 +1,17 @@
+name: Checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements-linux-amd64.lock pytest==8.3.5
+      - run: bash scripts/fetch-examples.sh
+      - run: PYTHONPATH=_upstream/montecarlo/app python -m pytest -q tests _upstream/montecarlo/tests
+      - run: bash -n scripts/*.sh opengris/*.sh container/entrypoint.sh
+      - run: python opengris/run_example.py --local-workers 2 --all-examples --parallelism 4
