@@ -17,7 +17,7 @@ The Monte Carlo code and examples are included in this repository. ParGraph and 
 ## Get started
 
 1. [Installation and OCI configuration](docs/installation.md) — create the VM, configure networking and IAM dynamic groups, install the environment, create the OCIR repository and publish the worker image from the VM, and generate configuration.
-2. [Running examples](docs/running-examples.md) — start Scaler, verify workers, run the pricing examples and market-risk grid, and test scaling.
+2. [Running examples](docs/running-examples.md) — start Scaler, verify workers, estimate pi with Monte Carlo, run pricing examples and the market-risk grid, and test scaling.
 3. [Troubleshooting and cleanup](docs/troubleshooting.md) — diagnose permissions, image pulls, connectivity, and remove demo resources.
 
 ## Learn more

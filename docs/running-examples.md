@@ -32,24 +32,42 @@ Each task runs on a Scaler worker, waits two seconds, and returns:
 - `host`: the hostname of the container where the worker executed it.
 - `scaler` and `numpy`: the installed package versions reported by that worker.
 
-The short wait keeps tasks active briefly so worker activity is easier to observe. It does not perform a numerical calculation or measure CPU performance.
 
 If no workers are available, the pending tasks prompt the OCI Raw manager to provision capacity. The first run can take longer while a container instance is created, its image is pulled, and workers start. Existing workers can execute the test immediately.
 
-Successful output contains eight result dictionaries. For example, the first two might look like:
 
-```text
-{'task': 0, 'host': 'worker-container-host', 'scaler': '2.9.0', 'numpy': '2.2.6'}
-{'task': 1, 'host': 'worker-container-host', 'scaler': '2.9.0', 'numpy': '2.2.6'}
+## Estimate pi with Monte Carlo
+
+[`examples/pi.py`](../examples/pi.py) throws random points into the unit square. It counts points satisfying `x² + y² <= 1`, which lie inside a quarter of a unit circle. The hit fraction estimates `pi / 4`, so the client calculates `pi = 4 * total_hits / total_darts`.
+
+Start with a small run against your running scheduler:
+
+```bash
+python examples/pi.py --tasks 8 --chunks-per-task 2 --chunk-size 100000
 ```
 
-Confirm that **all eight results appear** and that the versions match the example environment: Scaler `2.9.0` and NumPy `2.2.6`. The script prints results in submission order and exits after collecting them all. It reports the versions; it does not assert that they match those expected values.
+This submits eight tasks and samples **1,600,000 points** in total. Each task uses NumPy on a worker and returns only its hit count. The client sums the counts after every future completes, then prints the estimated pi, its absolute difference from `math.pi`, and elapsed time.
 
-Repeated hostnames are normal: several workers and tasks can share one container instance. This test does not require eight workers or eight container instances, and its output does not prove that tasks ran simultaneously.
+For the larger workload from the original example:
 
-Receiving all eight results verifies the client-to-scheduler connection, task dispatch, worker execution, and result return. If the test caused new workers to be created, it also exercises OCI provisioning and image startup. A container instance reaching `ACTIVE` alone is not sufficient; completed tasks show that workers are actually executing work.
+```bash
+python examples/pi.py --tasks 128 --chunks-per-task 200 --chunk-size 2000000
+```
 
-The test checks package metadata, so it does not verify NumPy calculations or the Monte Carlo code. Run the examples below to check the actual calculation path. If results never arrive or the script raises an error, inspect the scheduler and worker logs using the [troubleshooting guide](troubleshooting.md).
+This samples **51,200,000,000 points**. It is also the script's default workload. Runtime depends on available workers, CPU performance, and container startup; no fixed completion time is assumed. Tasks can trigger additional OCI capacity up to the worker manager's configured limit.
+
+`--tasks` controls the number of independent Scaler tasks. `--chunks-per-task` controls task duration, and `--chunk-size` controls the NumPy batch size and per-task memory use. The script processes batches without retaining all points. Each task has a distinct seed, starting from `--seed` (default 0); keeping the seed and workload settings unchanged makes the sampled points reproducible regardless of which worker executes a task.
+
+The scheduler defaults to `tcp://127.0.0.1:8516`. Use `--scheduler tcp://VM_PRIVATE_IP:8516` when submitting from another reachable host. `--object-storage-address tcp://VM_PRIVATE_IP:8517` can override the scheduler's advertised data address when needed. NumPy is already included in this repository's worker image; this example needs no image rebuild or additional packages.
+
+The final estimate is printed only after all tasks succeed. An exception or disconnection before that point means the run has not produced a complete estimate.
+
+For a local check without OCI:
+
+```bash
+python examples/pi.py --local-workers 2 \
+  --tasks 8 --chunks-per-task 2 --chunk-size 100000
+```
 
 ## Run the Monte Carlo examples
 

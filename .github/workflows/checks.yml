@@ -14,3 +14,4 @@ jobs:
       - run: PYTHONPATH=app python -m pytest -q tests
       - run: bash -n scripts/*.sh opengris/*.sh container/entrypoint.sh
       - run: python opengris/run_example.py --local-workers 2 --all-examples --parallelism 4
+      - run: python examples/pi.py --local-workers 2 --tasks 8 --chunks-per-task 2 --chunk-size 100000
