@@ -7,7 +7,7 @@ Run shell commands from the repository root.
 A local numerical test does not require OCI permissions:
 
 ```bash
-bash opengris/run-example.sh --local-workers 2 --all-examples --parallelism 4
+bash opengris/run-example.sh --local-workers 2 --spec examples/sample-simulation.json --parallelism 4
 ```
 
 Developer checks (activate the environment first):
