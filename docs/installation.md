@@ -151,17 +151,14 @@ python scripts/generate-scaler-config.py \
 cat config-montecarlo.toml
 ```
 
-The generator defaults to **`auth_type = "instance_principal"`**. No `~/.oci/config` or user API signing key is required. It reads IMDSv2, then uses `GetVnic` to discover the subnet. It normalizes the region and keeps the tenancy-prefixed availability-domain name. Existing output is backed up before replacement.
-
-By default workers use the VM's compartment, AD, and primary VNIC subnet. On multi-VNIC hosts, select `--vnic-id OCID`. Use `--advertise-ip IPv4` only when workers should connect to a different reachable address. The generated object-storage listener binds to all interfaces on 8517, the scheduler binds on 8516, and remote workers receive the private IP for both services. Internal scheduler/manager connections remain on loopback.
-
-The default size is 4 OCPUs and 30 GB per container instance. `--max-task-concurrency 16` permits up to four such instances. It is a ceiling, not a request to prestart four instances. Container instances incur charges while provisioned.
-
-To retain user API-key authentication instead:
+The generator defaults to **`auth_type = "instance_principal"`**. No `~/.oci/config` or user API signing key is required. It reads IMDSv2, then uses `GetVnic` to discover the subnet. It normalizes the region and keeps the tenancy-prefixed availability-domain name. Existing output is backed up before replacement. To retain user API-key authentication instead:
 
 ```bash
 python scripts/generate-scaler-config.py --container-image "$IMAGE" \
   --auth-type config_file --profile DEFAULT
 ```
+
+The default size is 4 OCPUs and 30 GB per container instance. `--max-task-concurrency 16` permits up to four such instances. It is a ceiling, not a request to prestart four instances. Container instances incur charges while provisioned.
+
 
 Next: [Start Scaler and run the examples](running-examples.md).
