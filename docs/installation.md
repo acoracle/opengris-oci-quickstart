@@ -10,7 +10,7 @@ Use the OCI Console to create an **Oracle Linux 9 x86_64 VM**, for example `VM.S
 
 Use an existing VCN or create one with appropriate routing. Workers default to the VM's subnet and compartment. The VM and workers need DNS and outbound HTTPS to OCI APIs, OCIR, Python package indexes, and Python/uv download hosts. A private subnet needs a NAT gateway or equivalent internet egress; a service gateway alone does not provide access to PyPI or GitHub. Confirm Container Instances quota and shape availability in your selected region and AD.
 
-For SSH, use your organization's approved access method, such as OCI Bastion. In a FIPS environment generate an RSA key, for example `ssh-keygen -t rsa -b 3072`, rather than Ed25519.
+For SSH, use your organization's approved access method, such as OCI Bastion.
 
 Configure the VM's subnet security list or attached NSG:
 
