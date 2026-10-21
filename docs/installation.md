@@ -94,13 +94,7 @@ The networking policy follows Oracle's documented launch example and grants acce
 
 Allow time for IAM propagation. [Rule changes can take about an hour](https://docs.oracle.com/en-us/iaas/Content/Identity/dynamicgroups/Updating_Dynamic_Groups.htm) to be effective. When replacing the VM, update the `instance.id` matching rule.
 
-## 4. Use the included Monte Carlo examples
-
-The calculation code is included under `app/montecarlo/`, and the five pricing inputs and nine-scenario market-risk grid are under `examples/`. They are available immediately after cloning this repository; no additional checkout or fetch step is required.
-
-These files come from upstream commit `c0068ccba6cd004944afbd2f1bc3ba54291cfecf`. The runner and worker image use these local copies. See [UPSTREAM.md](../UPSTREAM.md) for provenance.
-
-## 5. Create the private repository, build, and push from the VM
+## 4. Create the private repository, build, and push from the VM
 
 Run this on the scheduler VM in the activated environment:
 
@@ -139,7 +133,7 @@ The Dockerfile installs Python and dependencies during the build and copies the 
 
 See Oracle's [instance-principal OCIR authentication guide](https://docs.oracle.com/en/learn/cred-helper/index.html) and [registry bearer-token explanation](https://www.ateam-oracle.com/authentication-mechanisms-for-oci-container-registry-ocir).
 
-## 6. Generate the VM-specific configuration
+## 5. Generate the VM-specific configuration
 
 From the activated environment:
 
