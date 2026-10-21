@@ -10,7 +10,6 @@ Use the OCI Console to create an **Oracle Linux 9 x86_64 VM**, for example `VM.S
 
 Use an existing VCN or create one with appropriate routing. Workers default to the VM's subnet and compartment. The VM and workers need DNS and outbound HTTPS to OCI APIs, OCIR, Python package indexes, and Python/uv download hosts. A private subnet needs a NAT gateway or equivalent internet egress; a service gateway alone does not provide access to PyPI or GitHub. Confirm Container Instances quota and shape availability in your selected region and AD.
 
-For SSH, use your organization's approved access method, such as OCI Bastion.
 
 Configure the VM's subnet security list or attached NSG:
 
@@ -21,15 +20,15 @@ Configure the VM's subnet security list or attached NSG:
 
 Allow corresponding worker egress to the scheduler. Use stateful rules, or configure return traffic explicitly for stateless rules. Keep Scaler ports reachable only from trusted compute: TCP transport in this demo does not authenticate clients.
 
-If `firewalld` runs on the scheduler, add matching host rules. Substitute your worker subnet CIDR and the active interface's zone (`sudo firewall-cmd --get-active-zones`):
+For this demo, stop and disable `firewalld` on the scheduler VM:
 
 ```bash
-WORKER_SUBNET_CIDR='172.16.0.0/24'  # replace with the actual worker subnet
-FIREWALL_ZONE='public'              # replace if your interface uses another zone
-sudo firewall-cmd --permanent --zone="$FIREWALL_ZONE" \
-  --add-rich-rule="rule family=ipv4 source address=$WORKER_SUBNET_CIDR port port=8516-8517 protocol=tcp accept"
-sudo firewall-cmd --reload
+sudo systemctl disable --now firewalld
 ```
+
+This stops firewalld immediately and disables it at boot. OCI security lists and NSGs still apply; keep the network rules above restricted to the worker subnet and approved SSH sources.
+
+**Production:** configure firewalld with the required ports and trusted source networks instead of disabling it, according to your organization's security requirements.
 
 ## 2. Clone this repository and install the environment
 
