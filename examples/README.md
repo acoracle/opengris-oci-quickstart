@@ -2,6 +2,11 @@
 
 [Back to README](../README.md) · [Start Scaler](../docs/running-examples.md)
 
+This repository includes two kinds of examples:
+
+- **Script-based examples** run from the command line: estimate pi, price individual contracts, or run a market-risk scenario grid. They submit tasks directly to Scaler and combine the results, providing a straightforward way to test the OCI deployment.
+- **Notebook-based examples** run interactively in Jupyter: explore larger financial calculations using Parfun and ParGraph. They include native Python implementations that run on the Jupyter host and parallel implementations that execute on Scaler workers. See the [notebook guide](notebooks/README.md) for setup and the SSH tunnel.
+
 ## How parallel execution works
 
 | Term | Meaning in this demo |
