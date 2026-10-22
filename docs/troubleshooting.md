@@ -47,7 +47,7 @@ oci container-instances container retrieve-logs \
 cat results/logs/worker-container.log
 ```
 
-The command downloads a snapshot of the most recent **256 KB** of container logs; it does not stream new output. To print directly in the terminal, use `--file -` instead of the file path. Run it again for a fresh snapshot; if prompted, confirm replacement of the existing file. For user API-key authentication, replace `--auth instance_principal` with `--auth api_key --profile DEFAULT` in these commands. See the [OCI CLI log reference](https://docs.oracle.com/en-us/iaas/tools/oci-cli/latest/oci_cli_docs/cmdref/container-instances/container/retrieve-logs.html).
+The command downloads a snapshot of the most recent **256 KB** of container logs; it does not stream new output. To print directly in the terminal, use `--file -` instead of the file path. Run it again for a fresh snapshot; if prompted, confirm replacement of the existing file.
 
 ### Alternative: find the container OCID with the CLI
 
