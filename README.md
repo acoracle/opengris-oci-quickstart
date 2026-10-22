@@ -1,6 +1,10 @@
-# Demoing OpenGRIS on OCI
+# OpenGRIS Demo on OCI
 
-[OpenGRIS](https://github.com/finos/opengris) is a FINOS initiative for sharing distributed compute resources across applications. **Citibank was an originating contributor**, including the initial Scaler implementation; see the [FINOS contribution record](https://github.com/finos/community/issues/326).
+[OpenGRIS](https://github.com/finos/opengris) is a FINOS initiative for making distributed compute resources easier to share across applications. Its scope covers a grid resource scheduling standard and a set of open-source Python libraries. Applications describe work to execute; an execution runtime schedules that work across local processes, servers, or cloud resources.
+
+The motivation comes from a familiar problem in large financial institutions: different teams have separate compute pools, demand varies through the day, and capacity assigned to one application can sit idle while another application needs more. OpenGRIS aims to make those resources more accessible through common interfaces and flexible execution backends. This applies to batch calculations and interactive analysis, including Monte Carlo pricing and risk calculations. See the project's [scope and original FINOS proposal](https://github.com/finos/community/issues/326).
+
+**Citibank was an originating contributor**, including the initial Scaler implementation. For the wider collaboration across banks and technology providers, including Oracle, see the [FINOS announcement on an open HPC compute fabric](https://www.finos.org/press/banks-and-tech-providers-collaborate-on-open-fabric-for-high-performance-computing) (April 21, 2026).
 
 Its Python libraries cover three complementary roles:
 
@@ -23,8 +27,7 @@ The Monte Carlo code and examples are included in this repository. The command-l
 
 ## Learn more
 
-- [OpenGRIS, Citi, and the Python packages](docs/opengris.md)
-- [Validation and publishing](docs/development.md)
+- [OpenGRIS and the Python packages](docs/opengris.md)
 - [Sources and attribution](docs/sources.md)
 - [Source provenance](UPSTREAM.md)
 

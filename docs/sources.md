@@ -2,6 +2,7 @@
 
 [Back to README](../README.md)
 
+- [FINOS announcement: banks and technology providers collaborate on an open HPC compute fabric](https://www.finos.org/press/banks-and-tech-providers-collaborate-on-open-fabric-for-high-performance-computing) (April 21, 2026), covering OpenGRIS, HTC-Grid, ORB, Five Spot, and Oracle's participation.
 - [OpenGRIS overview](https://github.com/finos/opengris) and [Scaler OCI Raw guide](https://finos.github.io/opengris-scaler/tutorials/worker_managers/oci_raw.html).
 - [OCI Container Instances policies and private image pulls](https://docs.oracle.com/en-us/iaas/Content/container-instances/permissions/policy-reference.htm).
 - [OCI instance metadata](https://docs.oracle.com/en-us/iaas/Content/Compute/Tasks/gettingmetadata.htm) and [VNIC model](https://docs.oracle.com/en-us/iaas/tools/python/latest/api/core/models/oci.core.models.Vnic.html).

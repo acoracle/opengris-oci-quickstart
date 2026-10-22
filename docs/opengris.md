@@ -1,16 +1,6 @@
-# OpenGRIS, Citi, and the Python packages
+# OpenGRIS and the Python packages
 
 [Back to README](../README.md)
-
-[OpenGRIS](https://github.com/finos/opengris) is a FINOS initiative for making distributed compute resources easier to share across applications. Its scope covers a grid resource scheduling standard and a set of open-source Python libraries. Applications describe work to execute; an execution runtime schedules that work across local processes, servers, or cloud resources.
-
-The motivation comes from a familiar problem in large financial institutions: different teams have separate compute pools, demand varies through the day, and capacity assigned to one application can sit idle while another application needs more. OpenGRIS aims to make those resources more accessible through common interfaces and flexible execution backends. This applies to batch calculations and interactive analysis, including Monte Carlo pricing and risk calculations. See the project's [scope and original FINOS proposal](https://github.com/finos/community/issues/326).
-
-### Citi's role
-
-**Citi was an originating contributor to OpenGRIS.** The [FINOS contribution and onboarding record](https://github.com/finos/community/issues/326) identifies Citi engineers as the initial maintainer and confirmed contributors, and records the open-source Scaler implementation under its original `github.com/citi/scaler` location. The project therefore brings contributions from engineers working on distributed-compute problems in banking into a FINOS community project.
-
-The current OpenGRIS umbrella and the Scaler, ParGraph, and Parfun repositories are hosted under the FINOS GitHub organization, where development and collaboration take place openly. Citi's contribution is part of that history; this repository provides an independent OCI deployment example for those community components.
 
 ### The OpenGRIS packages
 
